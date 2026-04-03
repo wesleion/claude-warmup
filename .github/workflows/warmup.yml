@@ -1,12 +1,12 @@
-name: Claude Code Warmup
+name: Claude Code Warmup — Conta 1
 
 on:
   schedule:
-    - cron: '15 9 * * 1-5'
+    - cron: '0 8 * * *'
   workflow_dispatch: {}
 
 concurrency:
-  group: claude-warmup
+  group: claude-warmup-1
   cancel-in-progress: true
 
 jobs:
@@ -16,10 +16,10 @@ jobs:
     steps:
       - name: Validate configuration
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN_1 }}
         run: |
           if [ -z "${CLAUDE_CODE_OAUTH_TOKEN}" ]; then
-            echo "CLAUDE_OAUTH_TOKEN secret is not set."
+            echo "CLAUDE_OAUTH_TOKEN_1 secret is not set."
             echo "Add it in Settings > Secrets and variables > Actions."
             exit 1
           fi
@@ -29,7 +29,7 @@ jobs:
 
       - name: Ping Claude to anchor 5-hour window
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN_1 }}
         run: |
           mkdir -p ~/.claude
           echo '{"hasCompletedOnboarding":true}' > ~/.claude.json
@@ -41,22 +41,20 @@ jobs:
           cat "$output_file"
 
           if [ $status -eq 0 ]; then
-            echo "Claude warmup request succeeded."
-            echo "✓ Warmup complete"
+            echo "✓ Warmup Conta 1 completo (05h BRT)"
             exit 0
           fi
 
           if grep -Eiq "expired|unauthorized|invalid token|authentication|auth failed|login required|not logged in" "$output_file"; then
-            echo "Claude token appears invalid or expired."
-            echo "Run 'claude setup-token' locally and update the CLAUDE_OAUTH_TOKEN GitHub secret."
+            echo "Token inválido ou expirado. Execute 'claude setup-token' e atualize CLAUDE_OAUTH_TOKEN_1."
             exit 1
           fi
 
           if grep -qi "rate limit" "$output_file"; then
-            echo "Claude reported a rate limit; treating as warmup success."
-            echo "✓ Warmup complete"
+            echo "Rate limit — tratando como sucesso."
+            echo "✓ Warmup completo"
             exit 0
           fi
 
-          echo "Claude warmup failed with an unexpected error."
+          echo "Warmup falhou com erro inesperado."
           exit $status
