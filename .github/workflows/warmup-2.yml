@@ -2,7 +2,7 @@ name: Claude Code Warmup — Conta 2
 
 on:
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 8 * * *'
   workflow_dispatch: {}
 
 concurrency:
@@ -41,7 +41,7 @@ jobs:
           cat "$output_file"
 
           if [ $status -eq 0 ]; then
-            echo "✓ Warmup Conta 2 completo (06h BRT)"
+            echo "✓ Warmup Conta 2 completo (08h BRT)"
             exit 0
           fi
 
